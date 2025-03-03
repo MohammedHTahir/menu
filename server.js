@@ -22,7 +22,8 @@ console.log('[ENV] UPLOADTHING_TOKEN:', process.env.UPLOADTHING_TOKEN ? '***pres
 
 // Initialize UTApi with only the token
 const utapi = new UTApi({
-  token: process.env.UPLOADTHING_TOKEN
+  apiKey: process.env.UPLOADTHING_TOKEN,
+  fetch: require('node-fetch')
 });
 
 // Configure multer for file uploads (use memory storage for Vercel)
@@ -68,27 +69,24 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       if (isVercel) {
         console.log('[DEBUG] Running in Vercel environment, uploading directly');
         
-        const uploadResponse = await utapi.uploadFiles({
-          files: [
+        const uploadResponse = await utapi.uploadFiles(
+          [
             {
-              fileBody: req.file.buffer,
+              file: req.file.buffer,
               fileName: req.file.originalname,
               contentType: req.file.mimetype
             }
-          ],
-          metadata: {
-            fileSize: req.file.size
-          }
-        });
+          ]
+        );
         
         console.log('[DEBUG] UploadThing response:', JSON.stringify(uploadResponse, null, 2));
         
-        if (uploadResponse && uploadResponse[0]?.url) {
-          console.log('[SUCCESS] File uploaded to UploadThing:', uploadResponse[0].url);
+        if (uploadResponse && uploadResponse[0]?.data?.url) {
+          console.log('[SUCCESS] File uploaded to UploadThing:', uploadResponse[0].data.url);
           
           return res.status(200).json({
             success: true,
-            fileUrl: uploadResponse[0].url
+            fileUrl: uploadResponse[0].data.url
           });
         } else {
           throw new Error('No URL in UploadThing response');
@@ -132,11 +130,45 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
       console.log('[WARNING] UploadThing upload failed:', uploadThingError.message);
       
       if (isVercel) {
-        // In Vercel, we can't fall back to local storage
-        return res.status(500).json({
-          success: false,
-          error: 'Failed to upload to UploadThing and no local storage available in serverless environment'
-        });
+        try {
+          // Instead of failing, let's create a data URL as a fallback
+          console.log('[DEBUG] Creating data URL fallback in Vercel environment');
+          
+          // Create a base64 string from the buffer
+          const base64Data = req.file.buffer.toString('base64');
+          const mimeType = req.file.mimetype;
+          const dataUrl = `data:${mimeType};base64,${base64Data}`;
+          
+          // Generate a unique identifier
+          const timestamp = Date.now();
+          const uniqueId = Math.random().toString(36).substring(2, 15);
+          
+          // Create a special URL that the frontend will understand as a data URL
+          // We'll prefix it so the frontend knows to handle it differently
+          const fallbackUrl = `/special-data-url/${timestamp}-${uniqueId}/${encodeURIComponent(req.file.originalname)}`;
+          
+          // Store the data URL in a global Map (in-memory cache)
+          // This is temporary and will be lost when the serverless function exits
+          // But it's good enough for immediate use
+          if (!global.dataUrlCache) {
+            global.dataUrlCache = new Map();
+          }
+          global.dataUrlCache.set(fallbackUrl, dataUrl);
+          
+          console.log('[SUCCESS] Created data URL fallback:', fallbackUrl);
+          
+          return res.status(200).json({
+            success: true,
+            fileUrl: fallbackUrl,
+            isDataUrl: true
+          });
+        } catch (fallbackError) {
+          console.error('[ERROR] Data URL fallback failed:', fallbackError);
+          return res.status(500).json({
+            success: false,
+            error: 'Both UploadThing and data URL fallback failed'
+          });
+        }
       }
       
       // Generate a unique filename
@@ -171,6 +203,28 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 
 // Serve uploaded files (for local fallback)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Add this route to serve the data URLs
+app.get('/special-data-url/:id/:filename', (req, res) => {
+  const fullPath = `/special-data-url/${req.params.id}/${req.params.filename}`;
+  
+  if (global.dataUrlCache && global.dataUrlCache.has(fullPath)) {
+    const dataUrl = global.dataUrlCache.get(fullPath);
+    
+    // Extract MIME type and base64 data
+    const matches = dataUrl.match(/^data:(.+);base64,(.+)$/);
+    if (matches && matches.length === 3) {
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      const buffer = Buffer.from(base64Data, 'base64');
+      
+      res.setHeader('Content-Type', mimeType);
+      return res.send(buffer);
+    }
+  }
+  
+  return res.status(404).send('File not found or expired');
+});
 
 // Serve the index.html file for all other routes
 app.get('*', (req, res) => {

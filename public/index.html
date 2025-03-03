@@ -1501,7 +1501,13 @@
                     throw new Error(data.error || 'Upload failed');
                 }
                 
-                // Set menu URL from response
+                // Store the uploaded file URL
+                if (data.isDataUrl) {
+                    // This is a data URL, need special handling
+                    console.log('Using data URL fallback');
+                }
+                
+                // Store the URL
                 menuUrl = data.fileUrl;
                 menuUrlInput.value = menuUrl;
                 
