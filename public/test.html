@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Tree Visualization</title>
+    <style>
+        :root {
+            --primary-color: #557A95;
+            --secondary-color: #7AB8BF;
+            --accent-color: #B2A3BF;
+            --background-color: #F7F7F7;
+            --text-color: #33485E;
+            --line-color: #88A2B9;
+            --node-bg: #FFFFFF;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+
+        #tree-container {
+            flex: 1;
+            padding: 2rem;
+            overflow: auto;
+            transition: all 0.5s ease;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .node {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .node rect {
+            fill: var(--node-bg);
+            stroke: var(--primary-color);
+            stroke-width: 2px;
+            rx: 8px;
+            ry: 8px;
+            filter: drop-shadow(var(--shadow));
+        }
+
+        .node text {
+            font-size: 0.85rem;
+            font-weight: 500;
+            fill: var(--text-color);
+            text-anchor: middle;
+        }
+
+        .link {
+            fill: none;
+            stroke: var(--line-color);
+            stroke-width: 1.5px;
+        }
+
+        .location {
+            font-size: 0.7rem;
+            fill: var(--secondary-color);
+            text-anchor: middle;
+        }
+
+        #admin-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background-color: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            overflow-y: auto;
+            transition: right 0.3s ease;
+            z-index: 10;
+        }
+
+        #admin-panel.open {
+            right: 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.7rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        h2 {
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+
+        #close-panel {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            padding: 0.2rem 0.5rem;
+        }
+
+        #login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        #login-form {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+        }
+
+        .tooltip {
+            position: absolute;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 5px;
+            box-shadow: var(--shadow);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 220px;
+        }
+
+        .tooltip h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .tooltip p {
+            margin-bottom: 0.3rem;
+            font-size: 0.85rem;
+        }
+
+        .node:hover {
+            filter: brightness(1.05);
+        }
+
+        #legend {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 0.8rem;
+            border-radius: 5px;
+            box-shadow: var(--shadow);
+            font-size: 0.8rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 0.5rem;
+            border-radius: 50%;
+        }
+
+        @media (max-width: 768px) {
+            #admin-panel {
+                width: 100%;
+            }
+        }
+
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--primary-color);
+            border-top: 5px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .zoom-controls {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            background-color: white;
+            box-shadow: var(--shadow);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Family Tree Visualization</h1>
+        <button id="admin-login">Admin Login</button>
+    </header>
+
+    <main>
+        <div id="tree-container"></div>
+        
+        <div id="admin-panel">
+            <h2>Admin Panel</h2>
+            <button id="close-panel">×</button>
+            
+            <div class="form-group">
+                <label for="person-name">Name</label>
+                <input type="text" id="person-name" placeholder="Enter full name">
+            </div>
+            
+            <div class="form-group">
+                <label for="birth-location">Birth Location</label>
+                <input type="text" id="birth-location" placeholder="City, Country">
+            </div>
+            
+            <div class="form-group">
+                <label for="birth-date">Birth Date</label>
+                <input type="date" id="birth-date">
+            </div>
+            
+            <div class="form-group">
+                <label for="parent-select">Parent</label>
+                <select id="parent-select">
+                    <option value="">Select parent (or none for root)</option>
+                </select>
+            </div>
+            
+            <button id="add-person">Add Person</button>
+            
+            <div class="form-group" style="margin-top: 2rem;">
+                <label for="person-edit">Edit/Remove Person</label>
+                <select id="person-edit">
+                    <option value="">Select a person</option>
+                </select>
+            </div>
+            
+            <div class="btn-group">
+                <button id="edit-person">Edit</button>
+                <button id="remove-person">Remove</button>
+            </div>
+        </div>
+
+        <div id="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: var(--primary-color);"></div>
+                <span>Root</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: var(--secondary-color);"></div>
+                <span>First Generation</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: var(--accent-color);"></div>
+                <span>Second+ Generation</span>
+            </div>
+        </div>
+
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoom-in">+</button>
+            <button class="zoom-btn" id="zoom-out">-</button>
+            <button class="zoom-btn" id="zoom-reset">⟲</button>
+        </div>
+    </main>
+
+    <div id="login-overlay">
+        <div id="login-form">
+            <h2>Admin Login</h2>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Admin username">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Password">
+            </div>
+            <div class="form-group">
+                <button id="login-btn">Login</button>
+            </div>
+            <p id="login-error" style="color: red; margin-top: 1rem; display: none;">Invalid credentials</p>
+        </div>
+    </div>
+
+    <div class="tooltip" id="node-tooltip"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script>
+        // Sample family data - this would normally be stored in a database
+        let familyData = {
+            id: "root",
+            name: "Family Root",
+            location: "Add family members",
+            children: []
+        };
+
+        // Admin credentials
+        const adminCredentials = {
+            username: "admin",
+            password: "familytree123"
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const treeContainer = document.getElementById('tree-container');
+            const adminPanel = document.getElementById('admin-panel');
+            const adminLoginBtn = document.getElementById('admin-login');
+            const closePanelBtn = document.getElementById('close-panel');
+            const loginOverlay = document.getElementById('login-overlay');
+            const loginForm = document.getElementById('login-form');
+            const loginBtn = document.getElementById('login-btn');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const loginError = document.getElementById('login-error');
+            const addPersonBtn = document.getElementById('add-person');
+            const parentSelect = document.getElementById('parent-select');
+            const personEditSelect = document.getElementById('person-edit');
+            const editPersonBtn = document.getElementById('edit-person');
+            const removePersonBtn = document.getElementById('remove-person');
+            const tooltip = document.getElementById('node-tooltip');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const zoomResetBtn = document.getElementById('zoom-reset');
+
+            // Initialize tree visualization
+            let svg, g, zoom;
+            let currentRoot = familyData;
+            const margin = {top: 40, right: 90, bottom: 50, left: 90};
+            let width = treeContainer.offsetWidth - margin.left - margin.right;
+            let height = window.innerHeight - 100 - margin.top - margin.bottom;
+
+            function initializeTree() {
+                // Clear previous SVG if any
+                d3.select("#tree-container svg").remove();
+
+                // Create SVG
+                svg = d3.select("#tree-container")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom);
+
+                // Set up zoom behavior
+                zoom = d3.zoom()
+                    .scaleExtent([0.5, 3])
+                    .on("zoom", (event) => {
+                        g.attr("transform", event.transform);
+                    });
+
+                svg.call(zoom);
+
+                // Create a group for the tree
+                g = svg.append("g")
+                    .attr("transform", `translate(${margin.left},${margin.top})`);
+
+                // Update the tree
+                updateTree();
+            }
+
+            function updateTree() {
+                // Set up tree layout
+                const treeLayout = d3.tree().size([height, width]);
+                
+                // Create hierarchy from data
+                const root = d3.hierarchy(currentRoot);
+                
+                // Assign x,y positions to nodes
+                const treeData = treeLayout(root);
+                
+                // Calculate max depth for color assignment
+                const maxDepth = treeData.height;
+                
+                // Create links between nodes
+                const links = g.selectAll(".link")
+                    .data(treeData.links())
+                    .join("path")
+                    .attr("class", "link")
+                    .attr("d", d3.linkHorizontal()
+                        .x(d => d.y)  // Swap x and y for horizontal layout
+                        .y(d => d.x));
+                
+                // Create node groups
+                const nodes = g.selectAll(".node")
+                    .data(treeData.descendants())
+                    .join("g")
+                    .attr("class", "node")
+                    .attr("transform", d => `translate(${d.y},${d.x})`) // Swap x and y for horizontal layout
+                    .on("click", function(event, d) {
+                        event.stopPropagation();
+                        currentRoot = d.data;
+                        updateTree();
+                        
+                        // Animate to center on the new root
+                        const transform = d3.zoomIdentity
+                            .translate(width / 2, height / 2)
+                            .scale(1)
+                            .translate(-d.y, -d.x);
+                        
+                        svg.transition()
+                            .duration(750)
+                            .call(zoom.transform, transform);
+                    })
+                    .on("mouseover", function(event, d) {
+                        tooltip.style.opacity = 1;
+                        tooltip.innerHTML = `
+                            <h3>${d.data.name}</h3>
+                            <p><strong>Location:</strong> ${d.data.location || 'Unknown'}</p>
+                            <p><strong>Birth Date:</strong> ${d.data.birthDate || 'Unknown'}</p>
+                        `;
+                        tooltip.style.left = (event.pageX + 10) + 'px';
+                        tooltip.style.top = (event.pageY + 10) + 'px';
+                    })
+                    .on("mousemove", function(event) {
+                        tooltip.style.left = (event.pageX + 10) + 'px';
+                        tooltip.style.top = (event.pageY + 10) + 'px';
+                    })
+                    .on("mouseout", function() {
+                        tooltip.style.opacity = 0;
+                    });
+                
+                // Add colored rectangle to each node
+                nodes.selectAll("rect")
+                    .data(d => [d])
+                    .join("rect")
+                    .attr("x", -60)
+                    .attr("y", -25)
+                    .attr("width", 120)
+                    .attr("height", 50)
+                    .attr("fill", d => {
+                        if (d.depth === 0) return "var(--primary-color)";
+                        if (d.depth === 1) return "var(--secondary-color)";
+                        return "var(--accent-color)";
+                    })
+                    .attr("stroke", "#FFF")
+                    .attr("stroke-width", 2);
+                
+                // Add text to each node
+                nodes.selectAll("text.name")
+                    .data(d => [d])
+                    .join("text")
+                    .attr("class", "name")
+                    .attr("dy", "-5")
+                    .attr("text-anchor", "middle")
+                    .text(d => d.data.name)
+                    .attr("fill", d => d.depth === 0 ? "#FFF" : "#FFF");
+                
+                // Add location text
+                nodes.selectAll("text.location")
+                    .data(d => [d])
+                    .join("text")
+                    .attr("class", "location")
+                    .attr("dy", "10")
+                    .attr("text-anchor", "middle")
+                    .text(d => d.data.location || "")
+                    .attr("fill", "#FFF");
+                
+                // Update select options
+                updateSelectOptions();
+            }
+
+            function updateSelectOptions() {
+                // Clear current options
+                parentSelect.innerHTML = '<option value="">Select parent (or none for root)</option>';
+                personEditSelect.innerHTML = '<option value="">Select a person</option>';
+                
+                // Helper function to recursively add all people
+                function addPersonOptions(node, path = "") {
+                    const newPath = path ? `${path} > ${node.name}` : node.name;
+                    
+                    // Add to parent select
+                    const parentOption = document.createElement('option');
+                    parentOption.value = JSON.stringify({ id: node.id, path: newPath });
+                    parentOption.textContent = newPath;
+                    parentSelect.appendChild(parentOption);
+                    
+                    // Add to edit select
+                    const editOption = document.createElement('option');
+                    editOption.value = JSON.stringify({ id: node.id, path: newPath });
+                    editOption.textContent = newPath;
+                    personEditSelect.appendChild(editOption);
+                    
+                    // Process children
+                    if (node.children) {
+                        node.children.forEach(child => {
+                            addPersonOptions(child, newPath);
+                        });
+                    }
+                }
+                
+                addPersonOptions(familyData);
+            }
+
+            // Find node by ID (for editing and removing)
+            function findNodeById(tree, id) {
+                if (tree.id === id) {
+                    return { node: tree, parent: null };
+                }
+                
+                if (tree.children) {
+                    for (let i = 0; i < tree.children.length; i++) {
+                        const child = tree.children[i];
+                        if (child.id === id) {
+                            return { node: child, parent: tree, index: i };
+                        }
+                        
+                        const result = findNodeById(child, id);
+                        if (result.node) {
+                            return result;
+                        }
+                    }
+                }
+                
+                return { node: null, parent: null };
+            }
+
+            // Event Listeners
+            adminLoginBtn.addEventListener('click', () => {
+                loginOverlay.style.display = 'flex';
+            });
+
+            loginBtn.addEventListener('click', () => {
+                if (usernameInput.value === adminCredentials.username && 
+                    passwordInput.value === adminCredentials.password) {
+                    loginOverlay.style.display = 'none';
+                    adminPanel.classList.add('open');
+                    adminLoginBtn.style.display = 'none';
+                } else {
+                    loginError.style.display = 'block';
+                    setTimeout(() => {
+                        loginError.style.display = 'none';
+                    }, 3000);
+                }
+            });
+
+            closePanelBtn.addEventListener('click', () => {
+                adminPanel.classList.remove('open');
+                adminLoginBtn.style.display = 'block';
+            });
+
+            // Add person to family tree
+            addPersonBtn.addEventListener('click', () => {
+                const name = document.getElementById('person-name').value;
+                const location = document.getElementById('birth-location').value;
+                const birthDate = document.getElementById('birth-date').value;
+                const parentOption = parentSelect.value;
+                
+                if (!name) {
+                    alert('Please enter a name');
+                    return;
+                }
+                
+                const newPerson = {
+                    id: 'person_' + Date.now(),
+                    name: name,
+                    location: location,
+                    birthDate: birthDate,
+                    children: []
+                };
+                
+                if (!parentOption) {
+                    // Add to root
+                    if (familyData.id === 'root' && familyData.children.length === 0) {
+                        // Replace root node if it's still the default
+                        familyData = newPerson;
+                    } else {
+                        familyData.children.push(newPerson);
+                    }
+                } else {
+                    // Add to selected parent
+                    const parentData = JSON.parse(parentOption);
+                    const { node } = findNodeById(familyData, parentData.id);
+                    
+                    if (node) {
+                        if (!node.children) {
+                            node.children = [];
+                        }
+                        node.children.push(newPerson);
+                    }
+                }
+                
+                // Clear form
+                document.getElementById('person-name').value = '';
+                document.getElementById('birth-location').value = '';
+                document.getElementById('birth-date').value = '';
+                parentSelect.value = '';
+                
+                // Update tree
+                currentRoot = familyData;
+                updateTree();
+            });
+
+            // Edit person
+            editPersonBtn.addEventListener('click', () => {
+                const selectedOption = personEditSelect.value;
+                
+                if (!selectedOption) {
+                    alert('Please select a person to edit');
+                    return;
+                }
+                
+                const personData = JSON.parse(selectedOption);
+                const { node } = findNodeById(familyData, personData.id);
+                
+                if (node) {
+                    // Populate form with current data
+                    document.getElementById('person-name').value = node.name || '';
+                    document.getElementById('birth-location').value = node.location || '';
+                    document.getElementById('birth-date').value = node.birthDate || '';
+                    
+                    // Remove existing person
+                    removePersonBtn.click();
+                }
+            });
+
+            // Remove person
+            removePersonBtn.addEventListener('click', () => {
+                const selectedOption = personEditSelect.value;
+                
+                if (!selectedOption) {
+                    alert('Please select a person to remove');
+                    return;
+                }
+                
+                const personData = JSON.parse(selectedOption);
+                const { node, parent, index } = findNodeById(familyData, personData.id);
+                
+                if (node) {
+                    if (parent) {
+                        // Remove from parent's children
+                        parent.children.splice(index, 1);
+                        
+                        // If parent has no more children, set children to empty array
+                        if (parent.children.length === 0) {
+                            parent.children = [];
+                        }
+                    } else {
+                        // This is the root node
+                        familyData = {
+                            id: "root",
+                            name: "Family Root",
+                            location: "Add family members",
+                            children: []
+                        };
+                    }
+                    
+                    // Update tree
+                    currentRoot = familyData;
+                    updateTree();
+                }
+            });
+
+            // Zoom controls
+            zoomInBtn.addEventListener('click', () => {
+                svg.transition().duration(300).call(
+                    zoom.scaleBy, 1.3
+                );
+            });
+            
+            zoomOutBtn.addEventListener('click', () => {
+                svg.transition().duration(300).call(
+                    zoom.scaleBy, 0.7
+                );
+            });
+            
+            zoomResetBtn.addEventListener('click', () => {
+                svg.transition().duration(300).call(
+                    zoom.transform, d3.zoomIdentity
+                );
+            });
+
+            // Responsive handling
+            window.addEventListener('resize', () => {
+                width = treeContainer.offsetWidth - margin.left - margin.right;
+                height = window.innerHeight - 100 - margin.top - margin.bottom;
+                
+                // Update SVG size
+                svg.attr("width", width + margin.left + margin.right)
+                   .attr("height", height + margin.top + margin.bottom);
+                
+                // Update tree
+                updateTree();
+            });
+
+            // Initialize the tree
+            initializeTree();
+        });
+    </script>
+</body>
+</html>

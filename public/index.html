@@ -1,0 +1,1748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRispr | Modern Menu QR Generator</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #6366F1;
+            --primary-dark: #4F46E5;
+            --primary-light: #A5B4FC;
+            --secondary: #10B981;
+            --secondary-dark: #059669;
+            --dark: #18181B;
+            --gray-900: #27272A;
+            --gray-800: #3F3F46;
+            --gray-700: #52525B;
+            --gray-600: #71717A;
+            --gray-500: #A1A1AA;
+            --gray-400: #D4D4D8;
+            --gray-300: #E4E4E7;
+            --gray-200: #F4F4F5;
+            --gray-100: #FAFAFA;
+            --gray-50: #FAFAFA;
+            --white: #FFFFFF;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --success: #10B981;
+            --info: #3B82F6;
+            
+            --border-radius-sm: 0.25rem;
+            --border-radius: 0.5rem;
+            --border-radius-lg: 0.75rem;
+            --border-radius-xl: 1rem;
+            
+            --box-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --box-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --box-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--gray-900);
+            background-color: var(--gray-50);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--gray-900);
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        a:hover {
+            color: var(--primary-dark);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Header */
+        .header {
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 1rem 0;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+        }
+        
+        .logo span {
+            color: var(--primary);
+        }
+        
+        .nav {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-link {
+            font-weight: 500;
+            color: var(--gray-700);
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--gray-700);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 5rem 0;
+            background: linear-gradient(to right, #8B5CF6, #6366F1);
+            color: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='rgba(255,255,255,0.1)' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+        
+        .hero-content {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--white);
+            max-width: 800px;
+        }
+        
+        .hero-description {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--white);
+            color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background-color: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-md);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--white);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-md);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--white);
+            color: var(--white);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--white);
+            color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-md);
+        }
+        
+        /* Main Content */
+        .main {
+            padding: 4rem 0;
+        }
+        
+        .card {
+            background-color: var(--white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--box-shadow-lg);
+            overflow: hidden;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--gray-200);
+            background-color: var(--gray-50);
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            font-weight: 500;
+            color: var(--gray-700);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab-button:hover {
+            color: var(--primary);
+        }
+        
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background-color: var(--white);
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 2rem;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--gray-800);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+        
+        .form-text {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            background-color: var(--gray-50);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .upload-info {
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+        
+        .progress {
+            height: 0.5rem;
+            background-color: var(--gray-200);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+        
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-left: 4px solid var(--success);
+        }
+        
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .alert-info {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--info);
+            border-left: 4px solid var(--info);
+        }
+        
+        /* QR Code */
+        .qr-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .qr-options {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .qr-display {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--gray-50);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .qr-code-wrapper {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 1.5rem;
+        }
+        
+        .qr-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .qr-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .color-picker {
+            width: 3rem;
+            height: 3rem;
+            padding: 0;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+        }
+        
+        .range-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .range-value {
+            font-weight: 500;
+            min-width: 3rem;
+            text-align: right;
+        }
+        
+        /* PDF Preview */
+        .pdf-preview {
+            width: 100%;
+            height: 500px;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--gray-300);
+            margin-top: 1.5rem;
+        }
+        
+        /* Features section */
+        .features {
+            padding: 5rem 0;
+            background-color: var(--white);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title p {
+            font-size: 1.25rem;
+            color: var(--gray-600);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background-color: var(--gray-50);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow-lg);
+        }
+        
+        .feature-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 3rem;
+            height: 3rem;
+            border-radius: var(--border-radius);
+            background-color: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-description {
+            color: var(--gray-600);
+        }
+        
+        /* Steps section */
+        .steps {
+            padding: 5rem 0;
+            background-color: var(--gray-50);
+        }
+        
+        .steps-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .step-card {
+            flex: 1;
+            min-width: 250px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            position: relative;
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -1rem;
+            left: -1rem;
+            width: 3rem;
+            height: 3rem;
+            background-color: var(--primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .step-title {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .step-description {
+            color: var(--gray-600);
+        }
+        
+        /* FAQ section */
+        .faq {
+            padding: 5rem 0;
+            background-color: var(--white);
+        }
+        
+        .accordion {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .accordion-item {
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .accordion-header {
+            padding: 1.5rem 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .accordion-title {
+            font-size: 1.25rem;
+            margin: 0;
+        }
+        
+        .accordion-icon {
+            font-size: 1rem;
+            color: var(--primary);
+            transition: var(--transition);
+        }
+        
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .accordion-body {
+            padding: 0 0 1.5rem;
+            color: var(--gray-600);
+        }
+        
+        .accordion-item.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+        
+        .accordion-item.active .accordion-content {
+            max-height: 1000px;
+        }
+        
+        /* Footer */
+        .footer {
+            background-color: var(--gray-900);
+            color: var(--gray-400);
+            padding: 3rem 0;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+        
+        .footer-logo span {
+            color: var(--primary);
+        }
+        
+        .footer-description {
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-heading {
+            font-size: 1.25rem;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-link {
+            margin-bottom: 0.75rem;
+        }
+        
+        .footer-link a {
+            color: var(--gray-400);
+            transition: var(--transition);
+        }
+        
+        .footer-link a:hover {
+            color: var(--white);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .social-link:hover {
+            background-color: var(--primary);
+            color: var(--white);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Modal */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .modal-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: var(--box-shadow-xl);
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+        
+        .modal-backdrop.show .modal {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray-500);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            color: var(--gray-900);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        /* Loader */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .loader-container.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loader {
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid var(--gray-200);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100%;
+                background-color: var(--white);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                box-shadow: var(--box-shadow-xl);
+                transition: var(--transition);
+                z-index: 1000;
+            }
+            
+            .nav.show {
+                right: 0;
+            }
+            
+            .nav-link {
+                font-size: 1.25rem;
+                padding: 1rem;
+            }
+            
+            .qr-container {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .hero-description {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .tab-button {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.875rem;
+            }
+            
+            .qr-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader-container" id="loaderContainer">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <a href="#" class="logo">QR<span>ispr</span></a>
+            <nav class="nav" id="mainNav">
+                <a href="#" class="nav-link active">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#faq" class="nav-link">FAQ</a>
+            </nav>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Create Contactless QR Menus in Seconds</h1>
+                <p class="hero-description">
+                    Generate professional QR codes for your restaurant's digital menu. Fast, easy and completely free.
+                </p>
+                <div class="hero-actions">
+                    <a href="#generator" class="btn btn-primary">
+                        <i class="fas fa-qrcode"></i> Create Your QR Menu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main" id="generator">
+        <div class="container">
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab-button active" data-tab="upload">
+                        <i class="fas fa-upload"></i> Upload Menu
+                    </button>
+                    <button class="tab-button" data-tab="customize">
+                        <i class="fas fa-paint-brush"></i> QR Customizer
+                    </button>
+                </div>
+                
+                <!-- Upload Tab -->
+                <div class="tab-content active" id="upload">
+                    <div class="form-group">
+                        <label class="form-label">Upload Your Menu PDF</label>
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3 class="upload-text">Drag & Drop your PDF menu here</h3>
+                            <p class="upload-info">or click to browse files (Max 10MB)</p>
+                            <input type="file" id="menuFile" accept=".pdf" style="display: none;">
+                        </div>
+                        <div class="form-text">Your menu will be securely uploaded and given a permanent URL.</div>
+                    </div>
+                    
+                    <div id="uploadProgress" style="display: none;">
+                        <div class="progress">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <p id="progressStatus" class="form-text">Uploading...</p>
+                    </div>
+                    
+                    <div id="uploadAlert" style="display: none;"></div>
+                    
+                    <div class="form-group">
+                        <label for="menuTitle" class="form-label">Menu Title (Optional)</label>
+                        <input type="text" id="menuTitle" class="form-control" placeholder="e.g., Lunch Menu, Dinner Menu">
+                        <div class="form-text">This will be displayed with your QR code</div>
+                    </div>
+                    
+                    <div id="pdfPreviewContainer" style="display: none;">
+                        <label class="form-label">Menu Preview</label>
+                        <iframe id="pdfPreview" class="pdf-preview"></iframe>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button id="nextButton" class="btn btn-primary" disabled>
+                            <i class="fas fa-arrow-right"></i> Next: Customize QR Code
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Customize Tab -->
+                <div class="tab-content" id="customize">
+                    <div class="qr-container">
+                        <div class="qr-options">
+                            <div class="form-group">
+                                <label class="form-label">Menu URL</label>
+                                <input type="text" id="menuUrl" class="form-control" readonly>
+                                <div class="form-text">This is the permanent link to your menu</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">QR Code Size</label>
+                                <div class="range-group">
+                                    <input type="range" id="qrSize" class="form-control" min="128" max="512" step="32" value="256">
+                                    <span id="qrSizeValue" class="range-value">256px</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Background Color</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="bgColor" class="color-picker" value="#FFFFFF">
+                                    <input type="text" id="bgColorText" class="form-control" value="#FFFFFF">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Foreground Color</label>
+                                <div class="color-input-group">
+                                    <input type="color" id="fgColor" class="color-picker" value="#000000">
+                                    <input type="text" id="fgColorText" class="form-control" value="#000000">
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label">Restaurant Name</label>
+                                <input type="text" id="restaurantName" class="form-control" placeholder="Your Restaurant Name">
+                                <div class="form-text">This will appear below the QR code</div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <button id="updateQrButton" class="btn btn-primary">
+                                    <i class="fas fa-sync-alt"></i> Update QR Code
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="qr-display">
+                            <h3 class="qr-title">Your QR Code</h3>
+                            <div class="qr-code-wrapper">
+                                <div id="qrcode"></div>
+                            </div>
+                            <div id="qrRestaurantName" style="font-weight: 600; font-size: 1.25rem;"></div>
+                            <div class="qr-actions">
+                                <button id="downloadButton" class="btn btn-primary">
+                                    <i class="fas fa-download"></i> Download
+                                </button>
+                                <button id="printButton" class="btn btn-secondary">
+                                    <i class="fas fa-print"></i> Print
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Choose QRispr</h2>
+                <p>Create a professional digital menu experience for your customers</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3 class="feature-title">Lightning Fast</h3>
+                    <p class="feature-description">
+                        Create and download your QR code menu in under 60 seconds. No complicated setup required.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile Optimized</h3>
+                    <p class="feature-description">
+                        Your menu will look great on any device, ensuring a seamless customer experience.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3 class="feature-title">Customizable</h3>
+                    <p class="feature-description">
+                        Personalize your QR codes with custom colors and your restaurant's branding.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3 class="feature-title">Secure Hosting</h3>
+                    <p class="feature-description">
+                        Your menu is securely hosted with enterprise-grade reliability and lightning-fast loading times.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Easy Updates</h3>
+                    <p class="feature-description">
+                        Update your menu anytime while keeping the same QR code. No reprinting necessary.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="feature-title">Contactless Experience</h3>
+                    <p class="feature-description">
+                        Provide a modern, hygienic dining experience that customers appreciate and expect.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="steps" id="how-it-works">
+        <div class="container">
+            <div class="section-title">
+                <h2>How It Works</h2>
+                <p>Create your digital menu in three simple steps</p>
+            </div>
+            
+            <div class="steps-container">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Upload Your Menu</h3>
+                    <p class="step-description">
+                        Upload your existing PDF menu. We'll host it securely on our lightning-fast servers.
+                    </p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Customize Your QR Code</h3>
+                    <p class="step-description">
+                        Personalize your QR code with your restaurant's colors and add your restaurant name.
+                    </p>
+                </div>
+                
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Download & Display</h3>
+                    <p class="step-description">
+                        Download your QR code, print it, and place it on your tables or at your entrance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <div class="section-title">
+                <h2>Frequently Asked Questions</h2>
+                <p>Everything you need to know about QRispr</p>
+            </div>
+            
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3 class="accordion-title">Is this service really free?</h3>
+                        <i class="accordion-icon fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            <p>Yes! QRispr is completely free for restaurants of all sizes. We offer secure hosting for your menu PDFs with no hidden fees or premium features.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3 class="accordion-title">How do I update my menu?</h3>
+                        <i class="accordion-icon fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            <p>Simply return to QRispr and upload your updated PDF with the same title. Your QR code will automatically link to the new menu, so there's no need to reprint your QR codes.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3 class="accordion-title">What file formats are supported?</h3>
+                        <i class="accordion-icon fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            <p>Currently, we support PDF format for menus. This ensures the best compatibility across all devices and a professional appearance for your customers.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3 class="accordion-title">Is there a limit to how many menus I can create?</h3>
+                        <i class="accordion-icon fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            <p>No limits! You can create as many different QR codes as you need for different menus (lunch, dinner, drinks, specials, etc.).</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <h3 class="accordion-title">How secure is the hosting for my menu?</h3>
+                        <i class="accordion-icon fas fa-chevron-down"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="accordion-body">
+                            <p>We use UploadThing, a secure and reliable file hosting service with enterprise-grade security. Your menus are served over HTTPS for maximum security and reliability.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <a href="#" class="footer-logo">QR<span>ispr</span></a>
+                    <p class="footer-description">
+                        Creating free QR code menus for restaurants worldwide. Modern, contactless dining made simple.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li class="footer-link">
+                            <a href="#">Home</a>
+                        </li>
+                        <li class="footer-link">
+                            <a href="#features">Features</a>
+                        </li>
+                        <li class="footer-link">
+                            <a href="#how-it-works">How It Works</a>
+                        </li>
+                        <li class="footer-link">
+                            <a href="#faq">FAQ</a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-heading">Resources</h4>
+                    <ul class="footer-links">
+                        <li class="footer-link">
+                            <a href="#">Help Center</a>
+                        </li>
+                        <li class="footer-link">
+                            <a href="#">Privacy Policy</a>
+                        </li>
+                        <li class="footer-link">
+                            <a href="#">Terms of Service</a>
+                        </li>
+                        <li class="footer-link">
+                            <a href="#">Contact Us</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; <span id="currentYear"></span> QRispr. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Print Modal -->
+    <div class="modal-backdrop" id="printModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Print QR Code</h3>
+                <button class="modal-close" id="closePrintModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Press Ctrl+P (or Cmd+P on Mac) to print this QR code.</p>
+                <div class="qr-print-container" style="text-align: center; margin: 1.5rem 0;">
+                    <div id="printQrCode" style="display: inline-block; background: white; padding: 1.5rem; border-radius: 0.5rem;"></div>
+                    <p id="printRestaurantName" style="font-weight: 600; font-size: 1.25rem; margin-top: 1rem;"></p>
+                    <p style="margin-top: 0.5rem; color: var(--gray-600);">Scan to view our menu</p>
+                </div>
+                <p style="font-size: 0.875rem; color: var(--gray-600);">
+                    Place this QR code on your tables or at the entrance of your restaurant for customers to scan.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="printButton2">
+                    <i class="fas fa-print"></i> Print
+                </button>
+                <button class="btn btn-outline" id="closePrintModalBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let menuFile = null;
+        let menuUrl = '';
+        let qrInstance = null;
+        
+        // DOM elements
+        const uploadArea = document.getElementById('uploadArea');
+        const menuFileInput = document.getElementById('menuFile');
+        const progressContainer = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('progressBar');
+        const progressStatus = document.getElementById('progressStatus');
+        const uploadAlert = document.getElementById('uploadAlert');
+        const pdfPreviewContainer = document.getElementById('pdfPreviewContainer');
+        const pdfPreview = document.getElementById('pdfPreview');
+        const nextButton = document.getElementById('nextButton');
+        const menuUrlInput = document.getElementById('menuUrl');
+        const qrSizeInput = document.getElementById('qrSize');
+        const qrSizeValue = document.getElementById('qrSizeValue');
+        const bgColorInput = document.getElementById('bgColor');
+        const bgColorTextInput = document.getElementById('bgColorText');
+        const fgColorInput = document.getElementById('fgColor');
+        const fgColorTextInput = document.getElementById('fgColorText');
+        const restaurantNameInput = document.getElementById('restaurantName');
+        const qrRestaurantNameDisplay = document.getElementById('qrRestaurantName');
+        const updateQrButton = document.getElementById('updateQrButton');
+        const downloadButton = document.getElementById('downloadButton');
+        const printButton = document.getElementById('printButton');
+        const loaderContainer = document.getElementById('loaderContainer');
+        const currentYearSpan = document.getElementById('currentYear');
+        const menuTitleInput = document.getElementById('menuTitle');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mainNav = document.getElementById('mainNav');
+        const printModal = document.getElementById('printModal');
+        const closePrintModal = document.getElementById('closePrintModal');
+        const closePrintModalBtn = document.getElementById('closePrintModalBtn');
+        const printButton2 = document.getElementById('printButton2');
+        const printQrCode = document.getElementById('printQrCode');
+        const printRestaurantName = document.getElementById('printRestaurantName');
+        const accordionItems = document.querySelectorAll('.accordion-item');
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current year in footer
+            currentYearSpan.textContent = new Date().getFullYear();
+            
+            // Initialize upload area
+            initUploadArea();
+            
+            // Initialize tabs
+            initTabs();
+            
+            // Initialize mobile menu
+            initMobileMenu();
+            
+            // Initialize accordion
+            initAccordion();
+            
+            // Initialize QR code options
+            initQrCodeOptions();
+            
+            // Initialize buttons
+            initButtons();
+        });
+        
+        // Initialize upload area
+        function initUploadArea() {
+            uploadArea.addEventListener('click', function() {
+                menuFileInput.click();
+            });
+            
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('upload-area-active');
+            });
+            
+            uploadArea.addEventListener('dragleave', function() {
+                this.classList.remove('upload-area-active');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('upload-area-active');
+                
+                if (e.dataTransfer.files.length) {
+                    handleFileSelection(e.dataTransfer.files[0]);
+                }
+            });
+            
+            menuFileInput.addEventListener('change', function() {
+                if (this.files.length) {
+                    handleFileSelection(this.files[0]);
+                }
+            });
+        }
+        
+        // Handle file selection
+        function handleFileSelection(file) {
+            // Check if file is PDF
+            if (file.type !== 'application/pdf') {
+                showAlert('error', 'Please upload a PDF file');
+                return;
+            }
+            
+            // Check file size (max 10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('error', 'File size should be less than 10MB');
+                return;
+            }
+            
+            // Set global file
+            menuFile = file;
+            
+            // Preview file
+            const objectUrl = URL.createObjectURL(file);
+            pdfPreview.src = objectUrl;
+            pdfPreviewContainer.style.display = 'block';
+            
+            // Set next button active
+            nextButton.disabled = false;
+            
+            // Show success alert
+            showAlert('success', 'File selected successfully! Click "Next" to continue.');
+            
+            // Use file name as title if title is empty
+            if (!menuTitleInput.value) {
+                const fileName = file.name.replace('.pdf', '');
+                menuTitleInput.value = fileName;
+            }
+        }
+        
+        // Upload file to UploadThing
+        async function uploadFile() {
+            if (!menuFile) {
+                showAlert('error', 'Please select a file to upload');
+                return;
+            }
+            
+            // Show loader and progress
+            loaderContainer.classList.add('show');
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+            progressStatus.textContent = 'Preparing upload...';
+            
+            try {
+                // Create form data
+                const formData = new FormData();
+                formData.append('file', menuFile);
+                
+                // Send request to our server API
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+                
+                // Set menu URL from response
+                menuUrl = data.fileUrl;
+                menuUrlInput.value = menuUrl;
+                
+                // Hide loader
+                loaderContainer.classList.remove('show');
+                
+                // Switch to customize tab
+                switchTab('customize');
+                
+                // Generate initial QR code
+                generateQRCode();
+                
+                // Show success alert
+                showAlert('success', 'Menu uploaded successfully!');
+            } catch (error) {
+                console.error('Upload error:', error);
+                showAlert('error', `Upload failed: ${error.message}`);
+                loaderContainer.classList.remove('show');
+            }
+        }
+        
+        // Generate QR code
+        function generateQRCode() {
+            if (!menuUrl) return;
+            
+            // Get QR options
+            const size = parseInt(qrSizeInput.value);
+            const bgColor = bgColorInput.value;
+            const fgColor = fgColorInput.value;
+            
+            // Update restaurant name display
+            qrRestaurantNameDisplay.textContent = restaurantNameInput.value;
+            
+            // Clear previous QR code
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            
+            // Create QR code
+            qrInstance = new QRCode(qrContainer, {
+                text: menuUrl,
+                width: size,
+                height: size,
+                colorDark: fgColor,
+                colorLight: bgColor,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        // Initialize QR code options
+        function initQrCodeOptions() {
+            // Update size value display
+            qrSizeInput.addEventListener('input', function() {
+                qrSizeValue.textContent = `${this.value}px`;
+            });
+            
+            // Update colors
+            bgColorInput.addEventListener('input', function() {
+                bgColorTextInput.value = this.value;
+            });
+            
+            bgColorTextInput.addEventListener('input', function() {
+                bgColorInput.value = this.value;
+            });
+            
+            fgColorInput.addEventListener('input', function() {
+                fgColorTextInput.value = this.value;
+            });
+            
+            fgColorTextInput.addEventListener('input', function() {
+                fgColorInput.value = this.value;
+            });
+            
+            // Update restaurant name
+            restaurantNameInput.addEventListener('input', function() {
+                qrRestaurantNameDisplay.textContent = this.value;
+            });
+        }
+        
+        // Initialize buttons
+        function initButtons() {
+            // Next button
+            nextButton.addEventListener('click', function() {
+                uploadFile();
+            });
+            
+            // Update QR button
+            updateQrButton.addEventListener('click', function() {
+                generateQRCode();
+            });
+            
+            // Download button
+            downloadButton.addEventListener('click', function() {
+                downloadQRCode();
+            });
+            
+            // Print button
+            printButton.addEventListener('click', function() {
+                showPrintModal();
+            });
+            
+            // Print modal buttons
+            closePrintModal.addEventListener('click', function() {
+                hidePrintModal();
+            });
+            
+            closePrintModalBtn.addEventListener('click', function() {
+                hidePrintModal();
+            });
+            
+            printButton2.addEventListener('click', function() {
+                window.print();
+            });
+            
+            // Close modal when clicking outside
+            printModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    hidePrintModal();
+                }
+            });
+        }
+        
+        // Download QR code
+        function downloadQRCode() {
+            if (!qrInstance) return;
+            
+            try {
+                // Get canvas and convert to data URL
+                const canvas = document.querySelector('#qrcode canvas');
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                // Create download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = dataUrl;
+                downloadLink.download = `qrispr-menu-qr-code.png`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            } catch (error) {
+                console.error('Download error:', error);
+                showAlert('error', 'Error downloading QR code');
+            }
+        }
+        
+        // Show print modal
+        function showPrintModal() {
+            if (!qrInstance) return;
+            
+            // Get QR code image
+            const canvas = document.querySelector('#qrcode canvas');
+            const qrCodeImg = canvas.toDataURL('image/png');
+            
+            // Clear previous QR code
+            printQrCode.innerHTML = '';
+            
+            // Create image
+            const img = document.createElement('img');
+            img.src = qrCodeImg;
+            img.alt = 'QR Code';
+            img.style.maxWidth = '200px';
+            printQrCode.appendChild(img);
+            
+            // Set restaurant name
+            printRestaurantName.textContent = restaurantNameInput.value || menuTitleInput.value || 'Restaurant Menu';
+            
+            // Show modal
+            printModal.classList.add('show');
+        }
+        
+        // Hide print modal
+        function hidePrintModal() {
+            printModal.classList.remove('show');
+        }
+        
+        // Initialize tabs
+        function initTabs() {
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+        }
+        
+        // Switch tab
+        function switchTab(tabId) {
+            // Remove active class from all tabs
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Add active class to selected tab
+            document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+            
+            // Hide all tab contents
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabId).classList.add('active');
+        }
+        
+        // Initialize mobile menu
+        function initMobileMenu() {
+            mobileMenuToggle.addEventListener('click', function() {
+                mainNav.classList.toggle('show');
+                
+                // Change icon
+                const icon = this.querySelector('i');
+                if (mainNav.classList.contains('show')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+        }
+        
+        // Initialize accordion
+        function initAccordion() {
+            accordionItems.forEach(item => {
+                const header = item.querySelector('.accordion-header');
+                
+                header.addEventListener('click', function() {
+                    // Toggle active class
+                    item.classList.toggle('active');
+                });
+            });
+        }
+        
+        // Show alert
+        function showAlert(type, message) {
+            uploadAlert.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            uploadAlert.style.display = 'block';
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                uploadAlert.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
