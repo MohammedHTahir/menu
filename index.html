@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Menu QR Generator | Restaurant Digital Solution</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍽️</text></svg>">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- QR Code library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-dark: #1565c0;
+            --secondary: #34a853;
+            --secondary-dark: #2e7d32;
+            --dark: #202124;
+            --gray-dark: #5f6368;
+            --gray: #9aa0a6;
+            --gray-light: #dadce0;
+            --light: #f8f9fa;
+            --white: #ffffff;
+            --danger: #ea4335;
+            --warning: #fbbc04;
+            --border-radius: 8px;
+            --box-shadow: 0 1px 3px rgba(60,64,67,0.12), 0 1px 2px rgba(60,64,67,0.24);
+            --box-shadow-hover: 0 4px 8px rgba(60,64,67,0.16), 0 4px 8px rgba(60,64,67,0.24);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: var(--light);
+            min-height: 100vh;
+        }
+        
+        a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background-color: var(--white);
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .logo i {
+            color: var(--primary);
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+        
+        .logo span {
+            color: var(--primary);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .nav-link {
+            color: var(--dark);
+            font-weight: 500;
+            padding: 6px 0;
+            position: relative;
+            text-decoration: none;
+        }
+        
+        .nav-link:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            left: 0;
+            bottom: 0;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .nav-link:hover:after,
+        .nav-link.active:after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 60px 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #eef2f5 100%);
+        }
+        
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 40px;
+        }
+        
+        .hero-text {
+            flex: 1;
+            max-width: 600px;
+        }
+        
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .hero-title span {
+            color: var(--primary);
+        }
+        
+        .hero-description {
+            font-size: 1.1rem;
+            color: var(--gray-dark);
+            margin-bottom: 30px;
+        }
+        
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            max-width: 500px;
+        }
+        
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+        
+        /* Tabs */
+        .tabs-container {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-top: -30px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: var(--light);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            color: var(--gray-dark);
+            font-weight: 500;
+            transition: var(--transition);
+            border-bottom: 2px solid transparent;
+            position: relative;
+        }
+        
+        .tab:hover {
+            color: var(--primary);
+        }
+        
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background-color: var(--white);
+        }
+        
+        .tab i {
+            margin-right: 8px;
+        }
+        
+        .tab-content {
+            padding: 30px;
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Forms and Inputs */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        
+        .help-text {
+            color: var(--gray-dark);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+        
+        input[type="text"],
+        input[type="file"],
+        input[type="url"],
+        input[type="email"],
+        input[type="password"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--gray-light);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: var(--white);
+        }
+        
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+        }
+        
+        input[type="file"] {
+            padding: 10px;
+            background-color: var(--light);
+            cursor: pointer;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .input-group > * {
+            flex: 1;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon input {
+            padding-left: 40px;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+            text-decoration: none;
+            color: var(--white);
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow-hover);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-dark);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+        
+        .btn-lg {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Cards */
+        .card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            overflow: hidden;
+            height: 100%;
+        }
+        
+        .card:hover {
+            box-shadow: var(--box-shadow-hover);
+        }
+        
+        .card-header {
+            padding: 20px 25px;
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        
+        .card-header h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .card-footer {
+            padding: 15px 25px;
+            background-color: var(--light);
+            border-top: 1px solid var(--gray-light);
+        }
+        
+        /* QR Code */
+        .qr-card {
+            padding: 30px;
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .qr-card:hover {
+            box-shadow: var(--box-shadow-hover);
+        }
+        
+        .qr-code-wrapper {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        #qrcode {
+            margin: 0 auto;
+        }
+        
+        .qr-restaurant-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 15px 0;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background-color: var(--white);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-title h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .section-title p {
+            color: var(--gray-dark);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .feature-card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow-hover);
+        }
+        
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(26, 115, 232, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .feature-description {
+            color: var(--gray-dark);
+        }
+        
+        /* GitHub Section */
+        .github-section {
+            background-color: #f6f8fa; /* GitHub's light background color */
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid #e1e4e8; /* GitHub's border color */
+        }
+        
+        .github-logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .github-logo {
+            width: 60px;
+            height: 60px;
+            fill: #24292e; /* GitHub's logo color */
+        }
+        
+        .github-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #24292e; /* GitHub's text color */
+        }
+        
+        .github-steps {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e1e4e8;
+        }
+        
+        .step {
+            display: flex;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e1e4e8;
+        }
+        
+        .step:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 600;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #24292e;
+        }
+        
+        .step-description {
+            color: var(--gray-dark);
+            font-size: 0.95rem;
+        }
+        
+        .code-block {
+            background-color: #f6f8fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: monospace;
+            overflow-x: auto;
+            border: 1px solid #e1e4e8;
+        }
+        
+        /* Upload Progress */
+        .upload-progress {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .progress-bar-container {
+            height: 10px;
+            background-color: #e1e4e8;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-status {
+            font-size: 0.9rem;
+            color: var(--gray-dark);
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e9;
+            border-left-color: var(--secondary);
+            color: #2e7d32;
+        }
+        
+        .alert-info {
+            background-color: #e3f2fd;
+            border-left-color: var(--primary);
+            color: #1565c0;
+        }
+        
+        .alert-warning {
+            background-color: #fff8e1;
+            border-left-color: var(--warning);
+            color: #f57c00;
+        }
+        
+        .alert-error {
+            background-color: #fbe9e7;
+            border-left-color: var(--danger);
+            color: #c62828;
+        }
+        
+        /* PDF Preview */
+        .pdf-preview {
+            width: 100%;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            margin-top: 20px;
+        }
+        
+        .pdf-preview iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+        
+        /* Loader */
+        .loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loader-content {
+            text-align: center;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--box-shadow-hover);
+            max-width: 80%;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(26, 115, 232, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 992px) {
+            .hero-content {
+                flex-direction: column-reverse;
+                text-align: center;
+            }
+            
+            .hero-text {
+                max-width: 100%;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                gap: 20px;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                border-bottom: 1px solid var(--gray-light);
+                text-align: left;
+            }
+            
+            .tab.active {
+                border-bottom: 1px solid var(--gray-light);
+                border-left: 4px solid var(--primary);
+            }
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: var(--white);
+            padding: 40px 0;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+        
+        .footer-logo {
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        
+        .footer-logo span {
+            color: var(--primary);
+        }
+        
+        .footer-description {
+            color: var(--gray-light);
+            margin-bottom: 20px;
+        }
+        
+        .footer-heading {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-heading:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 30px;
+            height: 2px;
+            background-color: var(--primary);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: var(--gray-light);
+            transition: var(--transition);
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            transition: var(--transition);
+        }
+        
+        .social-link:hover {
+            background-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading indicator -->
+    <div class="loader" id="loader" style="display: none;">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <p id="loader-message">Processing your request...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i class="fas fa-utensils"></i>
+                    Menu<span>QR</span>
+                </a>
+                <nav>
+                    <div class="nav-links">
+                        <a href="#" class="nav-link active">Home</a>
+                        <a href="#features" class="nav-link">Features</a>
+                        <a href="#how-it-works" class="nav-link">How It Works</a>
+                        <a href="#faq" class="nav-link">FAQ</a>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Professional <span>QR Code Menus</span> Powered by GitHub</h1>
+                    <p class="hero-description">
+                        Create modern, contactless menus for your restaurant with free hosting on GitHub Pages. Generate custom QR codes that link directly to your professionally-hosted menu PDFs.
+                    </p>
+                    <a href="#generator" class="btn btn-lg btn-icon">
+                        <i class="fas fa-qrcode"></i> Create Your QR Menu
+                    </a>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1541701494587-cb58502866ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1350&q=80" alt="Restaurant QR Code Menu" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content with Tabs -->
+    <section id="generator" class="generator">
+        <div class="container">
+            <div class="tabs-container">
+                <div class="tabs">
+                    <div class="tab active" data-tab="setup">
+                        <i class="fas fa-cog"></i> Setup
+                    </div>
+                    <div class="tab" data-tab="upload">
+                        <i class="fas fa-upload"></i> Upload Menu
+                    </div>
+                    <div class="tab" data-tab="qr-code">
+                        <i class="fas fa-qrcode"></i> QR Code Generator
+                    </div>
+                </div>
+                
+                <!-- Setup Tab -->
+                <div id="setup" class="tab-content active">
+                    <div class="github-section">
+                        <div class="github-logo-container">
+                            <svg class="github-logo" viewBox="0 0 16 16" version="1.1" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="github-title">Setup Your GitHub Repository</h3>
+                        
+                        <div class="github-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4 class="step-title">Create a GitHub account</h4>
+                                    <p class="step-description">
+                                        If you don't already have a GitHub account, <a href="https://github.com/join" target="_blank">sign up for free</a>.
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4 class="step-title">Create a new repository</h4>
+                                    <p class="step-description">
+                                        Name your repository <code>restaurant-menu</code> or any name you prefer.
+                                        Make sure the repository is set to <strong>Public</strong>.
+                                    </p>
+                                    <div class="alert alert-info">
+                                        <strong>Tip:</strong> For a professional URL, name your repository as <code>menu</code> if your GitHub username is your restaurant name.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4 class="step-title">Enable GitHub Pages</h4>
+                                    <p class="step-description">
+                                        Go to your repository settings, scroll down to "GitHub Pages" section and select:
+                                    </p>
+                                    <ul style="list-style-type: disc; margin-left: 20px; margin-top: 10px;">
+                                        <li>Source: <strong>main</strong> branch</li>
+                                        <li>Folder: <strong>/ (root)</strong></li>
+                                        <li>Click <strong>Save</strong></li>
+                                    </ul>
+                                    <p class="step-description" style="margin-top: 10px;">
+                                        GitHub will provide you with a URL like: <code>https://yourusername.github.io/restaurant-menu/</code>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h4 class="step-title">Generate a Personal Access Token</h4>
+                                    <p class="step-description">
+                                        This will allow our tool to upload files to your repository:
+                                    </p>
+                                    <ol style="list-style-type: decimal; margin-left: 20px; margin-top: 10px;">
+                                        <li>Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub Settings → Developer settings → Personal access tokens</a></li>
+                                        <li>Click <strong>Generate new token</strong></li>
+                                        <li>Name it "Menu QR Upload"</li>
+                                        <li>Select the <strong>repo</strong> scope</li>
+                                        <li>Click <strong>Generate token</strong></li>
+                                        <li><strong>Copy your token</strong> and save it somewhere safe</li>
+                                    </ol>
+                                    <div class="alert alert-warning">
+                                        <strong>Important:</strong> You will only see this token once, so make sure to copy it!
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="github-username">Enter your GitHub username</label>
+                            <div class="input-with-icon">
+                                <i class="fab fa-github"></i>
+                                <input type="text" id="github-username" placeholder="Your GitHub username">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="github-repo">Enter your repository name</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-folder"></i>
+                                <input type="text" id="github-repo" placeholder="restaurant-menu">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="github-token">Personal Access Token (will not be stored)</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-key"></i>
+                                <input type="password" id="github-token" placeholder="ghp_xxxxxxxxxxxxxxxx">
+                            </div>
+                            <p class="help-text">This token is only used to upload files and is never stored on our servers.</p>
+                        </div>
+                        
+                        <button class="btn btn-icon" onclick="validateGitHubCredentials()">
+                            <i class="fas fa-check-circle"></i> Verify Credentials
+                        </button>
+                        
+                        <div id="github-verification-result" style="margin-top: 15px; display: none;"></div>
+                    </div>
+                    
+                    <div class="text-center" style="margin-top: 30px;">
+                        <button class="btn btn-secondary btn-icon" onclick="goToUploadTab()">
+                            <i class="fas fa-arrow-right"></i> Next: Upload Your Menu
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Upload Tab -->
+                <div id="upload" class="tab-content">
+                    <div class="alert alert-info">
+                        <strong>Note:</strong> Your menu PDF will be uploaded to your GitHub repository and hosted on GitHub Pages.
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="menu-file">Upload Menu PDF</label>
+                        <input type="file" id="menu-file" accept=".pdf" onchange="handleMenuFileSelect(event)">
+                        <p class="help-text">Maximum file size: 25MB</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="menu-name">Menu File Name</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-file-pdf"></i>
+                            <input type="text" id="menu-name" placeholder="menu.pdf">
+                        </div>
+                        <p class="help-text">This will be the filename on your GitHub repository (e.g., lunch-menu.pdf)</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="menu-title">Menu Title (Optional)</label>
+                        <input type="text" id="menu-title" placeholder="Lunch Menu">
+                        <p class="help-text">This will be displayed with your QR code</p>
+                    </div>
+                    
+                    <div class="upload-progress" id="upload-progress">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progress-bar"></div>
+                        </div>
+                        <div class="progress-status" id="progress-status">Preparing upload...</div>
+                    </div>
+                    
+                    <div id="upload-result" style="margin-top: 15px; display: none;"></div>
+                    
+                    <div class="pdf-preview" id="pdf-preview-container" style="display: none;">
+                        <iframe id="pdf-preview" src=""></iframe>
+                    </div>
+                    
+                    <div class="text-center" style="margin-top: 30px;">
+                        <button class="btn btn-secondary btn-icon" id="upload-button" onclick="uploadToGitHub()">
+                            <i class="fas fa-cloud-upload-alt"></i> Upload to GitHub
+                        </button>
+                        
+                        <button class="btn btn-icon" id="generate-qr-button" onclick="goToQRTab()" style="display: none; margin-left: 15px;">
+                            <i class="fas fa-qrcode"></i> Generate QR Code
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- QR Code Generator Tab -->
+                <div id="qr-code" class="tab-content">
+                    <div class="row" style="display: flex; flex-wrap: wrap; gap: 30px;">
+                        <div style="flex: 1; min-width: 300px;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h2>Customize Your QR Code</h2>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="qr-menu-url">Menu URL</label>
+                                        <div class="input-with-icon">
+                                            <i class="fas fa-link"></i>
+                                            <input type="url" id="qr-menu-url" readonly>
+                                        </div>
+                                        <p class="help-text">This is the URL to your menu hosted on GitHub Pages</p>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="qr-size">QR Code Size</label>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <input type="range" id="qr-size" min="128" max="512" step="32" value="256" oninput="updateQRSize()">
+                                            <span id="qr-size-value">256px</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label>QR Code Colors</label>
+                                        <div style="display: flex; gap: 15px;">
+                                            <div style="flex: 1;">
+                                                <label for="qr-bg-color" style="font-size: 0.9rem;">Background</label>
+                                                <div style="display: flex; gap: 10px; align-items: center;">
+                                                    <input type="color" id="qr-bg-color" value="#FFFFFF" oninput="updateQRColor()">
+                                                    <input type="text" id="qr-bg-color-text" value="#FFFFFF" oninput="updateQRColorFromText('bg')">
+                                                </div>
+                                            </div>
+                                            <div style="flex: 1;">
+                                                <label for="qr-fg-color" style="font-size: 0.9rem;">Foreground</label>
+                                                <div style="display: flex; gap: 10px; align-items: center;">
+                                                    <input type="color" id="qr-fg-color" value="#000000" oninput="updateQRColor()">
+                                                    <input type="text" id="qr-fg-color-text" value="#000000" oninput="updateQRColorFromText('fg')">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="qr-restaurant-name">Restaurant Name</label>
+                                        <input type="text" id="qr-restaurant-name" placeholder="Your Restaurant Name" oninput="updateQRRestaurantName()">
+                                    </div>
+                                    
+                                    <button class="btn btn-secondary btn-icon btn-full" onclick="regenerateQRCode()">
+                                        <i class="fas fa-sync-alt"></i> Update QR Code
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 300px;">
+                            <div class="qr-card">
+                                <h3 style="margin-bottom: 20px;">Your QR Code</h3>
+                                <div class="qr-code-wrapper">
+                                    <div id="qrcode"></div>
+                                </div>
+                                <div id="qr-restaurant-name-display" class="qr-restaurant-name"></div>
+                                <div style="margin-top: 20px;">
+                                    <button class="btn btn-icon" onclick="downloadQRCode()">
+                                        <i class="fas fa-download"></i> Download QR Code
+                                    </button>
+                                    <button class="btn btn-secondary btn-icon" style="margin-left: 10px;" onclick="printQRCode()">
+                                        <i class="fas fa-print"></i> Print
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>Why Choose Our QR Menu Solution</h2>
+                <p>A professional, completely free way to create contactless menus for your restaurant</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3 class="feature-title">Free Hosting</h3>
+                    <p class="feature-description">
+                        Host your menu PDFs on GitHub Pages with unlimited bandwidth, completely free forever.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Professional & Secure</h3>
+                    <p class="feature-description">
+                        GitHub offers enterprise-grade security and reliability for hosting your digital menus.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3 class="feature-title">Version Control</h3>
+                    <p class="feature-description">
+                        Easily update your menu while keeping a history of all previous versions.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    <h3 class="feature-title">Custom QR Codes</h3>
+                    <p class="feature-description">
+                        Create beautiful, branded QR codes that match your restaurant's aesthetic.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Mobile Optimized</h3>
+                    <p class="feature-description">
+                        Your menu will look great on any device, from smartphones to tablets.
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-hand-holding-heart"></i>
+                    </div>
+                    <h3 class="feature-title">Contactless Experience</h3>
+                    <p class="feature-description">
+                        Provide a safe, modern dining experience that customers appreciate.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="how-it-works" style="padding: 80px 0; background-color: var(--light);">
+        <div class="container">
+            <div class="section-title">
+                <h2>How It Works</h2>
+                <p>Create your professional QR menu in just three easy steps</p>
+            </div>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 40px;">
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="card">
+                        <div class="card-body" style="text-align: center; padding: 30px;">
+                            <div style="width: 80px; height: 80px; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; font-weight: 600;">1</div>
+                            <h3 style="font-size: 1.3rem; margin-bottom: 15px;">Setup GitHub</h3>
+                            <p style="color: var(--gray-dark);">
+                                Create a free GitHub account and repository to host your menu PDFs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="card">
+                        <div class="card-body" style="text-align: center; padding: 30px;">
+                            <div style="width: 80px; height: 80px; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; font-weight: 600;">2</div>
+                            <h3 style="font-size: 1.3rem; margin-bottom: 15px;">Upload Menu</h3>
+                            <p style="color: var(--gray-dark);">
+                                Upload your PDF menu directly to your GitHub repository with our tool.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="flex: 1; min-width: 300px;">
+                    <div class="card">
+                        <div class="card-body" style="text-align: center; padding: 30px;">
+                            <div style="width: 80px; height: 80px; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; font-weight: 600;">3</div>
+                            <h3 style="font-size: 1.3rem; margin-bottom: 15px;">Generate QR Code</h3>
+                            <p style="color: var(--gray-dark);">
+                                Create and customize your QR code, then print it for your restaurant.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq" style="padding: 80px 0; background-color: var(--white);">
+        <div class="container">
+            <div class="section-title">
+                <h2>Frequently Asked Questions</h2>
+                <p>Everything you need to know about our QR menu solution</p>
+            </div>
+            
+            <div style="max-width: 800px; margin: 40px auto 0;">
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-body">
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Is this really completely free?</h3>
+                        <p style="color: var(--gray-dark);">
+                            Yes! GitHub Pages provides free hosting for public repositories with unlimited bandwidth. There are no hidden costs or premium features.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-body">
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px;">How do I update my menu?</h3>
+                        <p style="color: var(--gray-dark);">
+                            Simply upload a new version of your PDF with the same name. GitHub will automatically replace the old version, and your QR code will continue to work without any changes.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-body">
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Is there a limit to how many menus I can upload?</h3>
+                        <p style="color: var(--gray-dark);">
+                            GitHub has a soft limit of 1GB per repository, which is more than enough for thousands of menu PDFs. You can also create multiple repositories if needed.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-bottom: 20px;">
+                    <div class="card-body">
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px;">How secure is GitHub Pages for hosting my menus?</h3>
+                        <p style="color: var(--gray-dark);">
+                            GitHub Pages is extremely reliable and secure, used by major companies and organizations worldwide. Your menu will be served over HTTPS for added security.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h3 style="font-size: 1.2rem; margin-bottom: 10px;">Can I use a custom domain name?</h3>
+                        <p style="color: var(--gray-dark);">
+                            Yes! GitHub Pages allows you to use your own custom domain. In your repository settings, you can configure a custom domain like "menu.yourrestaurant.com".
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <a href="#" class="footer-logo">
+                        Menu<span>QR</span>
+                    </a>
+                    <p class="footer-description">
+                        Professional QR code menu generator with free GitHub Pages hosting.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="footer-heading">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="#generator">Create QR Menu</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="footer-heading">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/" target="_blank">GitHub</a></li>
+                        <li><a href="https://docs.github.com/en/pages" target="_blank">GitHub Pages Docs</a></li>
+                        <li><a href="https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token" target="_blank">GitHub Tokens</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="copyright">
+                <p>&copy; <span id="current-year"></span> MenuQR. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let qrInstance = null;
+        let menuFile = null;
+        let menuUrl = '';
+        let githubUsername = '';
+        let githubRepo = '';
+        let githubToken = '';
+        let isGitHubVerified = false;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupTabs();
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+        
+        // Setup Tabs
+        function setupTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Only allow clicking tabs if we're verified (except for the setup tab)
+                    const tabId = this.getAttribute('data-tab');
+                    if (tabId !== 'setup' && !isGitHubVerified) {
+                        showAlert('Please complete the GitHub setup first', 'error');
+                        return;
+                    }
+                    
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show the selected tab content
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+        
+        // Navigation between tabs
+        function goToUploadTab() {
+            if (!isGitHubVerified) {
+                validateGitHubCredentials(() => {
+                    document.querySelector('[data-tab="upload"]').click();
+                });
+            } else {
+                document.querySelector('[data-tab="upload"]').click();
+            }
+        }
+        
+        function goToQRTab() {
+            document.querySelector('[data-tab="qr-code"]').click();
+            regenerateQRCode();
+        }
+        
+        // Show Alert
+        function showAlert(message, type) {
+            // Create alert element
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            
+            // Find the active tab content
+            const activeTabContent = document.querySelector('.tab-content.active');
+            
+            // Insert alert at the top
+            activeTabContent.insertBefore(alertDiv, activeTabContent.firstChild);
+            
+            // Remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+        
+        // Validate GitHub Credentials
+        function validateGitHubCredentials(callback) {
+            // Show loader
+            const loader = document.getElementById('loader');
+            loader.style.display = 'flex';
+            document.getElementById('loader-message').textContent = 'Verifying GitHub credentials...';
+            
+            // Get values
+            githubUsername = document.getElementById('github-username').value.trim();
+            githubRepo = document.getElementById('github-repo').value.trim();
+            githubToken = document.getElementById('github-token').value.trim();
+            
+            // Validation
+            if (!githubUsername || !githubRepo || !githubToken) {
+                loader.style.display = 'none';
+                const resultDiv = document.getElementById('github-verification-result');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>Error:</strong> Please fill in all GitHub credentials fields.
+                    </div>
+                `;
+                return;
+            }
+            
+            // Test the GitHub API access
+            fetch(`https://api.github.com/repos/${githubUsername}/${githubRepo}`, {
+                headers: {
+                    'Authorization': `token ${githubToken}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Success
+                isGitHubVerified = true;
+                
+                // Calculate GitHub Pages URL
+                menuUrl = `https://${githubUsername}.github.io/${githubRepo}/`;
+                document.getElementById('qr-menu-url').value = menuUrl;
+                
+                // Show success message
+                const resultDiv = document.getElementById('github-verification-result');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>Success!</strong> Your GitHub repository is verified and ready for use.
+                        <p>Your GitHub Pages URL: <a href="${menuUrl}" target="_blank">${menuUrl}</a></p>
+                    </div>
+                `;
+                
+                // Call callback if provided
+                if (typeof callback === 'function') {
+                    callback();
+                }
+                
+                // Hide loader
+                loader.style.display = 'none';
+            })
+            .catch(error => {
+                // Error
+                console.error('GitHub verification error:', error);
+                isGitHubVerified = false;
+                
+                const resultDiv = document.getElementById('github-verification-result');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>Error:</strong> Could not verify GitHub credentials.
+                        <p>Please check your username, repository name, and personal access token.</p>
+                        <p>Make sure your repository exists and your token has the "repo" scope.</p>
+                    </div>
+                `;
+                
+                // Hide loader
+                loader.style.display = 'none';
+            });
+        }
+        
+        // Handle Menu File Select
+        function handleMenuFileSelect(event) {
+            menuFile = event.target.files[0];
+            
+            if (menuFile) {
+                // Update filename field
+                document.getElementById('menu-name').value = menuFile.name;
+                
+                // Show preview
+                const objectUrl = URL.createObjectURL(menuFile);
+                document.getElementById('pdf-preview').src = objectUrl;
+                document.getElementById('pdf-preview-container').style.display = 'block';
+            }
+        }
+        
+        // Upload to GitHub
+        function uploadToGitHub() {
+            if (!isGitHubVerified) {
+                showAlert('Please verify your GitHub credentials first', 'error');
+                return;
+            }
+            
+            if (!menuFile) {
+                showAlert('Please select a PDF menu file to upload', 'error');
+                return;
+            }
+            
+            // Get menu name and validate
+            let menuName = document.getElementById('menu-name').value.trim();
+            if (!menuName) {
+                menuName = menuFile.name;
+            }
+            if (!menuName.endsWith('.pdf')) {
+                menuName += '.pdf';
+            }
+            
+            // Show progress
+            const progressContainer = document.getElementById('upload-progress');
+            const progressBar = document.getElementById('progress-bar');
+            const progressStatus = document.getElementById('progress-status');
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '10%';
+            progressStatus.textContent = 'Reading file...';
+            
+            // Show loader
+            const loader = document.getElementById('loader');
+            loader.style.display = 'flex';
+            document.getElementById('loader-message').textContent = 'Uploading to GitHub...';
+            
+            // Read file as base64
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fileContent = e.target.result;
+                const base64Content = fileContent.split(',')[1]; // Remove data URL prefix
+                
+                progressBar.style.width = '30%';
+                progressStatus.textContent = 'Preparing upload...';
+                
+                // Prepare data for GitHub API
+                const fileData = {
+                    message: `Upload menu: ${menuName}`,
+                    content: base64Content
+                };
+                
+                progressBar.style.width = '50%';
+                progressStatus.textContent = 'Uploading to GitHub...';
+                
+                // Call GitHub API to create/update file
+                fetch(`https://api.github.com/repos/${githubUsername}/${githubRepo}/contents/${menuName}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(fileData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`GitHub API error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Update progress
+                    progressBar.style.width = '100%';
+                    progressStatus.textContent = 'Upload complete!';
+                    
+                    // Set menu URL for QR code
+                    const menuTitle = document.getElementById('menu-title').value.trim();
+                    const fileUrl = `${menuUrl}${menuName}`;
+                    document.getElementById('qr-menu-url').value = fileUrl;
+                    
+                    // Update QR restaurant name
+                    if (menuTitle) {
+                        document.getElementById('qr-restaurant-name').value = menuTitle;
+                    }
+                    
+                    // Show success message
+                    const resultDiv = document.getElementById('upload-result');
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Success!</strong> Your menu has been uploaded to GitHub.
+                            <p>Direct link: <a href="${fileUrl}" target="_blank">${fileUrl}</a></p>
+                        </div>
+                    `;
+                    
+                    // Show generate QR button
+                    document.getElementById('generate-qr-button').style.display = 'inline-block';
+                    
+                    // Hide loader
+                    loader.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('GitHub upload error:', error);
+                    
+                    // Show error message
+                    const resultDiv = document.getElementById('upload-result');
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            <strong>Error:</strong> Failed to upload menu to GitHub.
+                            <p>${error.message}</p>
+                        </div>
+                    `;
+                    
+                    // Update progress
+                    progressBar.style.width = '0%';
+                    progressStatus.textContent = 'Upload failed';
+                    
+                    // Hide loader
+                    loader.style.display = 'none';
+                });
+            };
+            
+            reader.onerror = function() {
+                showAlert('Error reading the file', 'error');
+                progressContainer.style.display = 'none';
+                loader.style.display = 'none';
+            };
+            
+            reader.readAsDataURL(menuFile);
+        }
+        
+        // QR Code Functions
+        function updateQRSize() {
+            const size = document.getElementById('qr-size').value;
+            document.getElementById('qr-size-value').textContent = `${size}px`;
+        }
+        
+        function updateQRColor() {
+            const bgColor = document.getElementById('qr-bg-color').value;
+            const fgColor = document.getElementById('qr-fg-color').value;
+            
+            document.getElementById('qr-bg-color-text').value = bgColor;
+            document.getElementById('qr-fg-color-text').value = fgColor;
+        }
+        
+        function updateQRColorFromText(type) {
+            const textValue = document.getElementById(`qr-${type}-color-text`).value;
+            document.getElementById(`qr-${type}-color`).value = textValue;
+        }
+        
+        function updateQRRestaurantName() {
+            const name = document.getElementById('qr-restaurant-name').value;
+            document.getElementById('qr-restaurant-name-display').textContent = name;
+        }
+        
+        function regenerateQRCode() {
+            // Clear previous QR code
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = '';
+            
+            // Get settings
+            const url = document.getElementById('qr-menu-url').value;
+            const size = parseInt(document.getElementById('qr-size').value);
+            const bgColor = document.getElementById('qr-bg-color').value;
+            const fgColor = document.getElementById('qr-fg-color').value;
+            const restaurantName = document.getElementById('qr-restaurant-name').value;
+            
+            // Update restaurant name display
+            document.getElementById('qr-restaurant-name-display').textContent = restaurantName;
+            
+            // Create QR code
+            if (url) {
+                qrInstance = new QRCode(qrContainer, {
+                    text: url,
+                    width: size,
+                    height: size,
+                    colorDark: fgColor,
+                    colorLight: bgColor,
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                showAlert('Please upload a menu first to generate a QR code', 'error');
+            }
+        }
+        
+        function downloadQRCode() {
+            if (!qrInstance) {
+                showAlert('Please generate a QR code first', 'error');
+                return;
+            }
+            
+            try {
+                // Get canvas and convert to data URL
+                const canvas = document.querySelector('#qrcode canvas');
+                const dataUrl = canvas.toDataURL('image/png');
+                
+                // Get restaurant name for filename
+                let filename = 'menu-qr-code.png';
+                const restaurantName = document.getElementById('qr-restaurant-name').value;
+                if (restaurantName) {
+                    filename = `${restaurantName.toLowerCase().replace(/[^a-z0-9]/g, '-')}-qr-code.png`;
+                }
+                
+                // Create download link
+                const downloadLink = document.createElement('a');
+                downloadLink.href = dataUrl;
+                downloadLink.download = filename;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            } catch (error) {
+                console.error('Download error:', error);
+                showAlert('Error downloading QR code', 'error');
+            }
+        }
+        
+        function printQRCode() {
+            if (!qrInstance) {
+                showAlert('Please generate a QR code first', 'error');
+                return;
+            }
+            
+            // Get QR code image and restaurant name
+            const canvas = document.querySelector('#qrcode canvas');
+            const qrImage = canvas.toDataURL('image/png');
+            const restaurantName = document.getElementById('qr-restaurant-name').value || 'Restaurant Menu';
+            
+            // Open print window
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>QR Menu Code - ${restaurantName}</title>
+                    <style>
+                        body {
+                            font-family: 'Arial', sans-serif;
+                            text-align: center;
+                            padding: 20px;
+                        }
+                        .qr-container {
+                            max-width: 500px;
+                            margin: 0 auto;
+                            padding: 30px;
+                            border: 1px solid #ddd;
+                            border-radius: 8px;
+                        }
+                        h1 {
+                            font-size: 24px;
+                            margin-bottom: 20px;
+                        }
+                        .instructions {
+                            font-size: 14px;
+                            color: #666;
+                            margin-top: 20px;
+                        }
+                        img {
+                            max-width: 100%;
+                            height: auto;
+                        }
+                        .restaurant-name {
+                            font-size: 20px;
+                            font-weight: bold;
+                            margin-top: 15px;
+                        }
+                        @media print {
+                            .no-print {
+                                display: none;
+                            }
+                            .qr-container {
+                                border: none;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="no-print">
+                        <h1>Print QR Code</h1>
+                        <p>Press Ctrl+P (or Cmd+P on Mac) to print this page.</p>
+                    </div>
+                    
+                    <div class="qr-container">
+                        <p>Scan to view our menu</p>
+                        <img src="${qrImage}" alt="Menu QR Code">
+                        <p class="restaurant-name">${restaurantName}</p>
+                    </div>
+                    
+                    <p class="instructions no-print">
+                        Print this QR code and place it on your tables or at the entrance of your restaurant.<br>
+                        Customers can scan it to view your digital menu on their phones.
+                    </p>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            
+            // Trigger print after content is loaded
+            printWindow.onload = function() {
+                printWindow.focus();
+                setTimeout(() => printWindow.print(), 500);
+            };
+        }
+        
+        // For HTML2Canvas - required for QR code download with restaurant name
+        !function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).html2canvas=e()}(this,(function(){"use strict";...})); // HTML2Canvas library code would go here - intentionally abbreviated
+    </script>
+</body>
+</html>
