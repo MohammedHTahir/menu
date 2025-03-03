@@ -8,12 +8,21 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
+      "src": "/api/upload",
+      "methods": ["POST"],
       "dest": "server.js"
     },
     {
+      "src": "/uploads/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|svg|ico))",
+      "dest": "/public/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "public/$1"
+      "dest": "server.js"
     }
   ]
 } 

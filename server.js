@@ -45,6 +45,10 @@ if (!isVercel && !fs.existsSync(uploadsDir)) {
 
 // API endpoint for uploading files
 app.post('/api/upload', upload.single('file'), async (req, res) => {
+  console.log('[VERCEL DEBUG] API endpoint hit:', req.path);
+  console.log('[VERCEL DEBUG] Environment:', process.env.VERCEL ? 'Vercel' : 'Local');
+  console.log('[VERCEL DEBUG] Request method:', req.method);
+  
   try {
     console.log('[DEBUG] Upload request received');
     
