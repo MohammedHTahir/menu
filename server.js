@@ -6,7 +6,8 @@ const cors = require('cors');
 const fs = require('fs');
 const { UTApi } = require("uploadthing/server");
 
-dotenv.config({ path: path.join(__dirname, '.env') });
+// Load environment variables from .env file
+dotenv.config();
 
 // Initialize Express app
 const app = express();
@@ -24,7 +25,7 @@ const utapi = new UTApi({
   token: process.env.UPLOADTHING_TOKEN
 });
 
-// Configure multer for file uploads
+// Configure multer for file uploads (use memory storage for Vercel)
 const upload = multer({ 
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }
@@ -33,9 +34,12 @@ const upload = multer({
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Create a local storage solution
-const uploadsDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadsDir)) {
+// Create uploads directory for local development 
+// This won't work in Vercel's serverless environment
+const isVercel = process.env.VERCEL === '1';
+let uploadsDir = path.join(__dirname, 'uploads');
+
+if (!isVercel && !fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
@@ -56,41 +60,80 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
     });
 
     try {
-      // Save file to temporary location first
-      const tempFilePath = path.join(uploadsDir, `temp-${Date.now()}-${req.file.originalname}`);
-      fs.writeFileSync(tempFilePath, req.file.buffer);
-      
-      // Attempt to upload to UploadThing using UTApi and local file
-      console.log('[DEBUG] Starting UploadThing upload via UTApi');
-      
-      const uploadResponse = await utapi.uploadFiles({
-        files: [
-          {
-            path: tempFilePath,
-            name: req.file.originalname,
-            type: req.file.mimetype,
-          }
-        ],
-      });
-      
-      // Clean up temp file
-      fs.unlinkSync(tempFilePath);
-      
-      console.log('[DEBUG] UploadThing response:', JSON.stringify(uploadResponse, null, 2));
-      
-      if (uploadResponse && uploadResponse[0]?.url) {
-        console.log('[SUCCESS] File uploaded to UploadThing:', uploadResponse[0].url);
+      // For Vercel environment, we'll upload directly without temp file
+      if (isVercel) {
+        console.log('[DEBUG] Running in Vercel environment, uploading directly');
         
-        return res.status(200).json({
-          success: true,
-          fileUrl: uploadResponse[0].url
+        const uploadResponse = await utapi.uploadFiles({
+          files: [
+            {
+              fileBody: req.file.buffer,
+              fileName: req.file.originalname,
+              contentType: req.file.mimetype
+            }
+          ],
+          metadata: {
+            fileSize: req.file.size
+          }
         });
+        
+        console.log('[DEBUG] UploadThing response:', JSON.stringify(uploadResponse, null, 2));
+        
+        if (uploadResponse && uploadResponse[0]?.url) {
+          console.log('[SUCCESS] File uploaded to UploadThing:', uploadResponse[0].url);
+          
+          return res.status(200).json({
+            success: true,
+            fileUrl: uploadResponse[0].url
+          });
+        } else {
+          throw new Error('No URL in UploadThing response');
+        }
       } else {
-        throw new Error('No URL in UploadThing response');
+        // For local development, use temp file method
+        const tempFilePath = path.join(uploadsDir, `temp-${Date.now()}-${req.file.originalname}`);
+        fs.writeFileSync(tempFilePath, req.file.buffer);
+        
+        console.log('[DEBUG] Starting UploadThing upload via UTApi');
+        
+        const uploadResponse = await utapi.uploadFiles({
+          files: [
+            {
+              path: tempFilePath,
+              name: req.file.originalname,
+              type: req.file.mimetype,
+            }
+          ],
+        });
+        
+        // Clean up temp file
+        fs.unlinkSync(tempFilePath);
+        
+        console.log('[DEBUG] UploadThing response:', JSON.stringify(uploadResponse, null, 2));
+        
+        if (uploadResponse && uploadResponse[0]?.url) {
+          console.log('[SUCCESS] File uploaded to UploadThing:', uploadResponse[0].url);
+          
+          return res.status(200).json({
+            success: true,
+            fileUrl: uploadResponse[0].url
+          });
+        } else {
+          throw new Error('No URL in UploadThing response');
+        }
       }
     } catch (uploadThingError) {
       // If UploadThing fails, fall back to local storage
-      console.log('[WARNING] UploadThing upload failed, falling back to local storage:', uploadThingError.message);
+      // This won't work in Vercel, so we'll need to handle differently
+      console.log('[WARNING] UploadThing upload failed:', uploadThingError.message);
+      
+      if (isVercel) {
+        // In Vercel, we can't fall back to local storage
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to upload to UploadThing and no local storage available in serverless environment'
+        });
+      }
       
       // Generate a unique filename
       const timestamp = Date.now();
@@ -130,8 +173,13 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Access the application at http://localhost:${PORT}`);
-});
+// Start the server (only in non-Vercel environments)
+if (!isVercel) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Access the application at http://localhost:${PORT}`);
+  });
+}
+
+// For Vercel, we need to export the Express app
+module.exports = app;
